@@ -1,0 +1,27 @@
+# Files to ignore
+alaiance.ipynb
+matched_profiles.xlsx
+Rawdata/alianceprofilefrom 1993to2000.ods
+
+# Virtual environment
+.venv/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+
+# Claude memory
+.claude/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
