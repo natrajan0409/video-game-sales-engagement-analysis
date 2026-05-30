@@ -26,6 +26,16 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
+# ── Plot helpers ─────────────────────────────────────────────────────────────
+def px_scatter_with_optional_ols(*args, trendline="ols", **kwargs):
+    if trendline == "ols":
+        try:
+            import statsmodels.api  # noqa: F401
+        except ImportError:
+            st.warning("`statsmodels` is not installed; trendlines have been disabled.")
+            return px.scatter(*args, **kwargs)
+    return px.scatter(*args, trendline=trendline, **kwargs)
+
 # ── Data loading (cached) ────────────────────────────────────────────────────
 @st.cache_data(show_spinner="Loading datasets...")
 def load_all_data():
@@ -273,10 +283,15 @@ elif page == "Merged Insights":
 
     with r1c1:
         st.subheader("Q22 — Rating vs Global Sales")
-        fig = px.scatter(merged_df, x="Rating", y="Global_Sales",
-                         color="Genre", hover_data=["Title", "Platform"],
-                         opacity=0.6, trendline="ols",
-                         labels={"Global_Sales": "Global Sales (M)"})
+        fig = px_scatter_with_optional_ols(
+            merged_df,
+            x="Rating",
+            y="Global_Sales",
+            color="Genre",
+            hover_data=["Title", "Platform"],
+            opacity=0.6,
+            labels={"Global_Sales": "Global Sales (M)"},
+        )
         fig.update_layout(height=420)
         st.plotly_chart(fig, use_container_width=True)
 
@@ -309,11 +324,15 @@ elif page == "Merged Insights":
 
     with r2c1:
         st.subheader("Q25 — Wishlist vs Global Sales")
-        fig = px.scatter(merged_df, x="Wishlist", y="Global_Sales",
-                         color="Genre", opacity=0.5,
-                         labels={"Global_Sales": "Global Sales (M)",
-                                  "Wishlist": "Wishlist Count"},
-                         trendline="ols")
+        fig = px_scatter_with_optional_ols(
+            merged_df,
+            x="Wishlist",
+            y="Global_Sales",
+            color="Genre",
+            opacity=0.5,
+            labels={"Global_Sales": "Global Sales (M)",
+                    "Wishlist": "Wishlist Count"},
+        )
         fig.update_layout(height=380)
         st.plotly_chart(fig, use_container_width=True)
 
