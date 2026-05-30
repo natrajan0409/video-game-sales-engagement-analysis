@@ -36,6 +36,11 @@ def px_scatter_with_optional_ols(*args, trendline="ols", **kwargs):
             return px.scatter(*args, **kwargs)
     return px.scatter(*args, trendline=trendline, **kwargs)
 
+
+def subheader_chart(title: str, chart_type: str):
+    st.subheader(title)
+    st.caption(f"Chart Type: {chart_type}")
+
 # ── Data loading (cached) ────────────────────────────────────────────────────
 @st.cache_data(show_spinner="Loading datasets...")
 def load_all_data():
@@ -81,7 +86,7 @@ if page == "Overview & KPIs":
     c1, c2 = st.columns(2)
 
     with c1:
-        st.subheader("Top 10 Best-Selling Games")
+        subheader_chart("Top 10 Best-Selling Games", "Horizontal Bar Chart")
         top10 = (sales_df.groupby("Name")["Global_Sales"]
                  .sum().nlargest(10).reset_index())
         fig = px.bar(top10, x="Global_Sales", y="Name", orientation="h",
@@ -92,7 +97,7 @@ if page == "Overview & KPIs":
         st.plotly_chart(fig, use_container_width=True)
 
     with c2:
-        st.subheader("Regional Sales Share")
+        subheader_chart("Regional Sales Share", "Pie Chart")
         region_sales = pd.Series({
             "North America": sales_df["NA_Sales"].sum(),
             "Europe":        sales_df["EU_Sales"].sum(),
@@ -104,7 +109,7 @@ if page == "Overview & KPIs":
         fig.update_layout(height=380)
         st.plotly_chart(fig, use_container_width=True)
 
-    st.subheader("Platform Sales Landscape")
+    subheader_chart("Platform Sales Landscape", "Bar Chart")
     plat_sales = (sales_df.groupby("Platform")["Global_Sales"]
                   .sum().nlargest(15).reset_index())
     fig = px.bar(plat_sales, x="Platform", y="Global_Sales",
@@ -136,7 +141,7 @@ elif page == "Game Engagement":
     r1c1, r1c2 = st.columns(2)
 
     with r1c1:
-        st.subheader("Q1 — Top Rated Games")
+        subheader_chart("Q1 — Top Rated Games", "Horizontal Bar Chart")
         top_rated = filtered.nlargest(10, "Rating")[["Title", "Rating", "Plays"]]
         fig = px.bar(top_rated, x="Rating", y="Title", orientation="h",
                      color="Rating", color_continuous_scale="RdYlGn",
@@ -146,7 +151,7 @@ elif page == "Game Engagement":
         st.plotly_chart(fig, use_container_width=True)
 
     with r1c2:
-        st.subheader("Q6 — Rating Distribution")
+        subheader_chart("Q6 — Rating Distribution", "Histogram")
         fig = px.histogram(filtered, x="Rating", nbins=20,
                            marginal="box", color_discrete_sequence=["#2196F3"])
         fig.update_layout(height=380)
@@ -155,7 +160,7 @@ elif page == "Game Engagement":
     r2c1, r2c2 = st.columns(2)
 
     with r2c1:
-        st.subheader("Q3 — Genre Distribution")
+        subheader_chart("Q3 — Genre Distribution", "Horizontal Bar Chart")
         genre_counts = filtered["Primary Genre"].value_counts().reset_index()
         genre_counts.columns = ["Genre", "Count"]
         fig = px.bar(genre_counts.head(12), x="Count", y="Genre", orientation="h",
@@ -165,21 +170,21 @@ elif page == "Game Engagement":
         st.plotly_chart(fig, use_container_width=True)
 
     with r2c2:
-        st.subheader("Q7 — Top 10 Most Wishlisted Games")
+        subheader_chart("Q7 — Top 10 Most Wishlisted Games", "Horizontal Bar Chart")
         top_wish = filtered.nlargest(10, "Wishlist")[["Title", "Wishlist", "Rating"]]
         fig = px.bar(top_wish, x="Wishlist", y="Title", orientation="h",
                      color="Rating", color_continuous_scale="RdYlGn")
         fig.update_layout(yaxis=dict(autorange="reversed"), height=380)
         st.plotly_chart(fig, use_container_width=True)
 
-    st.subheader("Q5 — Game Release Trend")
+    subheader_chart("Q5 — Game Release Trend", "Area Chart")
     release = (filtered.dropna(subset=["Release Year"])
                .groupby("Release Year").size().reset_index(name="Count"))
     fig = px.area(release, x="Release Year", y="Count",
                   labels={"Count": "Games Released"})
     st.plotly_chart(fig, use_container_width=True)
 
-    st.subheader("Q4 — Backlog vs Wishlist (Top 20 by Backlogs)")
+    subheader_chart("Q4 — Backlog vs Wishlist (Top 20 by Backlogs)", "Grouped Bar Chart")
     bw = filtered.nlargest(20, "Backlogs")[["Title", "Backlogs", "Wishlist"]]
     fig = go.Figure()
     fig.add_trace(go.Bar(x=bw["Title"], y=bw["Backlogs"], name="Backlogs"))
@@ -187,7 +192,7 @@ elif page == "Game Engagement":
     fig.update_layout(barmode="group", xaxis_tickangle=-45, height=400)
     st.plotly_chart(fig, use_container_width=True)
 
-    st.subheader("Q8 — Avg Plays per Genre")
+    subheader_chart("Q8 — Avg Plays per Genre", "Horizontal Bar Chart")
     plays_genre = (games_df.groupby("Primary Genre")["Plays"]
                    .mean().sort_values(ascending=False).reset_index())
     plays_genre.columns = ["Genre", "Avg Plays"]
@@ -213,7 +218,7 @@ elif page == "Sales Analysis":
     r1c1, r1c2 = st.columns(2)
 
     with r1c1:
-        st.subheader("Q11 — Best-Selling Platforms")
+        subheader_chart("Q11 — Best-Selling Platforms", "Horizontal Bar Chart")
         plat = (filtered_sales.groupby("Platform")["Global_Sales"]
                 .sum().nlargest(10).reset_index())
         fig = px.bar(plat, x="Global_Sales", y="Platform", orientation="h",
@@ -223,7 +228,7 @@ elif page == "Sales Analysis":
         st.plotly_chart(fig, use_container_width=True)
 
     with r1c2:
-        st.subheader("Q13 — Top Publishers by Sales")
+        subheader_chart("Q13 — Top Publishers by Sales", "Horizontal Bar Chart")
         pub = (filtered_sales.groupby("Publisher")["Global_Sales"]
                .sum().nlargest(10).reset_index())
         fig = px.bar(pub, x="Global_Sales", y="Publisher", orientation="h",
@@ -232,7 +237,7 @@ elif page == "Sales Analysis":
                           coloraxis_showscale=False, height=380)
         st.plotly_chart(fig, use_container_width=True)
 
-    st.subheader("Q12 — Game Releases & Sales Over Years")
+    subheader_chart("Q12 — Game Releases & Sales Over Years", "Combined Bar + Line Chart")
     yearly = (filtered_sales.groupby("Year")
               .agg(game_count=("Name", "count"), total_sales=("Global_Sales", "sum"))
               .reset_index())
